@@ -33,3 +33,16 @@ After selecting the "Location" button, a dropdown menu appears with various loca
 4. Run it everyday and compare the latest value with the database value, incremental increase.
 5. Send an email for any new job positions.
 6. Move myworkdayjobs to the `src` folder.
+
+# Mechanism
+1. **Initial Page Load**: Begin at the job search page. An example URL might be: `https://walmart.wd5.myworkdayjobs.com/WalmartExternal`. Upon first loading this page, a request is made. Below are the details of this request:
+* The Request Header: ![request header](../static/request_header.png).
+* The Payload: ![payload](../static/payload.png)
+2. **Loading Facets**: The search button populates from the facets provided in the response. Once populated, you can click on options like 'location' or 'type' to see a dropdown list. The default job postings from the initial request will also be displayed.
+3. **New Search Request**: When you modify the search criteria and search again, a new request is sent. This request's payload includes the following fields:
+   1. `appliedFacets`: Contains details about `timeType` and location.
+      1. The timeType can be directly acquired.
+      2. For the location, to specify a location like `Ontario`, use the corresponding `facetParameter` as the key.
+   2. `limit`: Specifies the number of job postings displayed on a single page, with a maximum of 20.
+   3. `offset`: Indicates the starting point for the list of job postings.
+   4. `searchText`: Describes the position you're searching for, e.g., "software engineer".
