@@ -21,3 +21,15 @@ After selecting the "Location" button, a dropdown menu appears with various loca
       * Action: Inspect the "Sources" tab in the browser's developer tools. Check the initially loaded JavaScript files or chunks to identify the module's content.
    2. **Dynamic Import**: The module isn't loaded initially but only when it's needed (at runtime), which means there would typically be **an additional network request** to fetch that module.
       * Action: After opening the dropdown list, monitor the 'Network' tab in the browser's developer tools for any new JavaScript requests, indicating a dynamic import.
+
+
+
+# TODO:
+1. Update the class name from `loblaw` to `myworkdayjobs`.
+2. `postedOn` filed should be a string instead of a date, or make the date to be at 00:00:00
+3. It is better to find the `myworkdayjobs.json` configuration automatically.
+   1. `apiUrl` and `originUrl` have the same prefix.
+   2. `appliedFacets` use the closest `facetParameter` as the field name.
+4. Run it everyday and compare the latest value with the database value, incremental increase.
+5. Send an email for any new job positions.
+6. Move myworkdayjobs to the `src` folder.
