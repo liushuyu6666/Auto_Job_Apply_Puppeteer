@@ -33,6 +33,8 @@ After selecting the "Location" button, a dropdown menu appears with various loca
 4. Run it everyday and compare the latest value with the database value, incremental increase.
 5. Send an email for any new job positions.
 6. Move myworkdayjobs to the `src` folder.
+7. Log to a file
+8. `https://equifax.wd5.myworkdayjobs.com/en-US/External/job/CAN---Ontario---Toronto/Software-Engineer-Intermediate_J00148077` has a "Posted 30+ Days Ago".
 
 # Mechanism
 1. **Initial Page Load**: Begin at the job search page. An example URL might be: `https://walmart.wd5.myworkdayjobs.com/WalmartExternal`. Upon first loading this page, a request is made. Below are the details of this request:
