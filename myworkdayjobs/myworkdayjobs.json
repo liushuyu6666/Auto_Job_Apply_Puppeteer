@@ -34,5 +34,13 @@
             "locationRegionStateProvince": ["218a720b28a74c67b5c6d42c00bdadfa"]
         },
         "originUrl": "https://walmart.wd5.myworkdayjobs.com/en-US/WalmartExternal"
+    },
+    {
+        "companyName": "equifax",
+        "apiUrl": "https://equifax.wd5.myworkdayjobs.com/wday/cxs/equifax/External/jobs",
+        "appliedFacets": {
+            "locationRegionStateProvince": ["218a720b28a74c67b5c6d42c00bdadfa"]
+        },
+        "originUrl": "https://equifax.wd5.myworkdayjobs.com/en-US/External"
     }
 ]
