@@ -1,5 +1,7 @@
 import mongoose, { Model, Schema } from 'mongoose';
 import * as fs from 'fs';
+import * as path from 'path';
+import extraDate from '../utils/extraDate';
 
 export interface MyWorkDayJobsPosting {
     title: string;
@@ -9,32 +11,39 @@ export interface MyWorkDayJobsPosting {
     bulletFields: string[];
 }
 
-export interface AppliedFacets {
-    locationRegionStateProvince: string[];
-    timeType: string[];
+// This is the database schema
+export interface JobPostings {
+    company: string;
+    title: string;
+    referredId: string;
+    portalUrl: string;
+    locationsText: string;
+    postedOn: Date;
 }
 
 export interface JobSearchParams {
     companyName: string;
-    url: string;
-    appliedFacets: AppliedFacets;
+    apiUrl: string;
+    appliedFacets: any;
+    originUrl: string;
 }
 
 export class Loblaw {
-    jobPostingModel: Model<MyWorkDayJobsPosting>;
+    jobPostingModel: Model<JobPostings>;
     filePath: string;
 
     constructor(filePath: string) {
-        const jobPostingSchema = new Schema<MyWorkDayJobsPosting>({
+        const jobPostingSchema = new Schema<JobPostings>({
+            company: { type: String, required: true },
             title: { type: String, required: true },
-            externalPath: { type: String, required: true },
+            referredId: { type: String, required: true },
+            portalUrl: { type: String, required: true },
             locationsText: { type: String, required: true },
-            postedOn: { type: String, required: true },
-            bulletFields: { type: [String], required: true },
+            postedOn: { type: Date, required: true },
         });
 
-        this.jobPostingModel = mongoose.model<MyWorkDayJobsPosting>(
-            'MyWorkDayJobPosting',
+        this.jobPostingModel = mongoose.model<JobPostings>(
+            'JobPosting',
             jobPostingSchema,
         );
 
@@ -45,14 +54,14 @@ export class Loblaw {
         return JSON.parse(fs.readFileSync(this.filePath, 'utf-8'));
     }
 
-    private async fetchAllJobPostings(
-        jobSearchParams: JobSearchParams,
+    private async extractAllJobPostings(
+        apiUrl: string,
+        appliedFacets: any,
     ): Promise<MyWorkDayJobsPosting[]> {
         const allJobPostings: MyWorkDayJobsPosting[] = [];
         let currJobPostings: MyWorkDayJobsPosting[] = [];
         const limit = 20;
         let i = 0;
-        const { url, appliedFacets } = jobSearchParams;
 
         // TODO: TOO SLOW
         do {
@@ -69,7 +78,7 @@ export class Loblaw {
                 },
                 body: JSON.stringify(payload),
             };
-            const response = await (await fetch(url, requestOptions)).json();
+            const response = await (await fetch(apiUrl, requestOptions)).json();
             currJobPostings = response['jobPostings'];
             Array.prototype.push.apply(allJobPostings, currJobPostings);
             i++;
@@ -78,10 +87,15 @@ export class Loblaw {
         return allJobPostings;
     }
 
-    private jobPostingFilter(jobPostings: MyWorkDayJobsPosting[]) {
+    private transferToJobPostings(
+        jobPostings: MyWorkDayJobsPosting[],
+        company: string,
+        originUrl: string,
+    ): JobPostings[] {
+        // 1, Filter
         const jobKeywords = ['software', 'full stack']; // TODO: should be configurable
         const jobKeywordsExclude = ['co-p']; // TODO: should be configurable
-        return jobPostings.filter(
+        const filteredJobPostings = jobPostings.filter(
             (jobPosting) =>
                 jobKeywords.some(
                     (keyword) =>
@@ -92,22 +106,43 @@ export class Loblaw {
                         jobPosting.title.toLowerCase().indexOf(keyword) >= 0,
                 ),
         );
+
+        // 2, Transfer
+        return (filteredJobPostings || []).map((jobPosting) => ({
+            company,
+            title: jobPosting.title,
+            referredId: jobPosting.bulletFields[0],
+            portalUrl: path.join(originUrl, jobPosting.externalPath),
+            locationsText: jobPosting.locationsText,
+            postedOn: extraDate(jobPosting.postedOn),
+        }));
     }
 
-    async saveJobPostings() {
+    async loadJobPostings(jobPostings: JobPostings[]): Promise<void> {
+        for (const jobPosting of jobPostings) {
+            const newJobPosting = new this.jobPostingModel(jobPosting);
+            await newJobPosting.save();
+        }
+    }
+
+    async ETLJobPostings() {
         const jobSearchParams = await this.readJobSearchParams();
         for (const jobSearchParam of jobSearchParams) {
-            const { companyName } = jobSearchParam;
-            const allJobPostings =
-                await this.fetchAllJobPostings(jobSearchParam);
-            const filterJobPostings = this.jobPostingFilter(allJobPostings);
+            const { companyName, originUrl, apiUrl, appliedFacets } =
+                jobSearchParam;
+            const allJobPostings = await this.extractAllJobPostings(
+                apiUrl,
+                appliedFacets,
+            );
+            const transferredJobPostings = this.transferToJobPostings(
+                allJobPostings,
+                companyName,
+                originUrl,
+            );
 
-            for (const jobPosting of filterJobPostings) {
-                const newJobPosting = new this.jobPostingModel(jobPosting);
-                await newJobPosting.save();
-            }
+            await this.loadJobPostings(transferredJobPostings);
 
-            console.log(`finish ${companyName}'s posting`);
+            console.log(`finish ${companyName}'s ETL`);
         }
     }
 }

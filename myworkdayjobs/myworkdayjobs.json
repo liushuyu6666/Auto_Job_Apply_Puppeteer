@@ -1,10 +1,29 @@
 [
     {
         "companyName": "loblaw",
-        "url": "https://myview.wd3.myworkdayjobs.com/wday/cxs/myview/loblaw_careers/jobs",
+        "apiUrl": "https://myview.wd3.myworkdayjobs.com/wday/cxs/myview/loblaw_careers/jobs",
         "appliedFacets": {
             "locationRegionStateProvince": ["218a720b28a74c67b5c6d42c00bdadfa"],
             "timeType": ["f9ccda084af243cebebf4538f57811ab"]
-        }
+        },
+        "originUrl": "https://myview.wd3.myworkdayjobs.com/en-US/loblaw_careers/"
+    },
+    {
+        "companyName": "salesforce",
+        "apiUrl": "https://salesforce.wd12.myworkdayjobs.com/wday/cxs/salesforce/External_Career_Site/jobs",
+        "appliedFacets": {
+            "locations": ["1038e944b1101012453ab2868c050000", "1038e944b1101012453be0e6b2e40000"],
+            "timeType": ["0e28126347c3100fe3b402cf26290000"]
+        },
+        "originUrl": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/"
+    },
+    {
+        "companyName": "slack",
+        "apiUrl": "https://salesforce.wd12.myworkdayjobs.com/wday/cxs/salesforce/Slack/jobs",
+        "appliedFacets": {
+            "timeType": ["0e28126347c3100fe3b402cf26290000"],
+            "locations": ["1038e944b1101012453ab2868c050000", "1038e944b1101012453be0e6b2e40000"]
+        },
+        "originUrl": "https://salesforce.wd12.myworkdayjobs.com/en-US/Slack/"
     }
 ]
