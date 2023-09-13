@@ -1,4 +1,7 @@
-export interface JobPosting {
+import mongoose, { Model, Schema } from 'mongoose';
+import * as fs from 'fs';
+
+export interface MyWorkDayJobsPosting {
     title: string;
     externalPath: string;
     locationsText: string;
@@ -6,63 +9,50 @@ export interface JobPosting {
     bulletFields: string[];
 }
 
+export interface AppliedFacets {
+    locationRegionStateProvince: string[];
+    timeType: string[];
+}
+
+export interface JobSearchParams {
+    companyName: string;
+    url: string;
+    appliedFacets: AppliedFacets;
+}
+
 export class Loblaw {
-    allJobPostings: JobPosting[];
+    jobPostingModel: Model<MyWorkDayJobsPosting>;
+    filePath: string;
 
-    constructor() {}
+    constructor(filePath: string) {
+        const jobPostingSchema = new Schema<MyWorkDayJobsPosting>({
+            title: { type: String, required: true },
+            externalPath: { type: String, required: true },
+            locationsText: { type: String, required: true },
+            postedOn: { type: String, required: true },
+            bulletFields: { type: [String], required: true },
+        });
 
-    // async fetchFacets(url: string) {
-    //     const payload = {
-    //         appliedFacets: {},
-    //         limit: 1,
-    //         offset: 0,
-    //         searchText: '',
-    //     };
-    //     const requestOptions: RequestInit = {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify(payload),
-    //     };
-    //     const response = await fetch(url, requestOptions);
+        this.jobPostingModel = mongoose.model<MyWorkDayJobsPosting>(
+            'MyWorkDayJobPosting',
+            jobPostingSchema,
+        );
 
-    //     if (!response.ok) {
-    //         throw new Error(`HTTP error! Status: ${response.status}`);
-    //     }
+        this.filePath = filePath;
+    }
 
-    //     const json = await response.json();
+    private async readJobSearchParams(): Promise<JobSearchParams[]> {
+        return JSON.parse(fs.readFileSync(this.filePath, 'utf-8'));
+    }
 
-    //     const locationId = this.extractLocationFromFacets(json);
-
-    //     console.log(locationId);
-    // }
-
-    // extractLocationFromFacets(response: any) {
-    //     const facets = response['facets'];
-    //     const locations = facets.find(
-    //         (fac) => fac['facetParameter'] === 'locationMainGroup',
-    //     );
-    //     const locationValues = locations['values'];
-    //     const locationRegionStateProvince = locationValues.find(
-    //         (loc) => loc['facetParameter'] === 'locationRegionStateProvince',
-    //     );
-    //     const locationRegionStateProvinceValues =
-    //         locationRegionStateProvince['values'];
-    //     const ontario = locationRegionStateProvinceValues.find(
-    //         (loc) => loc['descriptor'] === 'Ontario',
-    //     );
-    //     return ontario['id'];
-    // }
-
-    async fetchAllJobPostings(
-        url: string,
-        appliedFacets: any,
-    ): Promise<JobPosting[]> {
-        const allJobPosting: JobPosting[] = [];
-        let currJobPostings: JobPosting[] = [];
+    private async fetchAllJobPostings(
+        jobSearchParams: JobSearchParams,
+    ): Promise<MyWorkDayJobsPosting[]> {
+        const allJobPostings: MyWorkDayJobsPosting[] = [];
+        let currJobPostings: MyWorkDayJobsPosting[] = [];
         const limit = 20;
         let i = 0;
+        const { url, appliedFacets } = jobSearchParams;
 
         // TODO: TOO SLOW
         do {
@@ -81,16 +71,16 @@ export class Loblaw {
             };
             const response = await (await fetch(url, requestOptions)).json();
             currJobPostings = response['jobPostings'];
-            Array.prototype.push.apply(allJobPosting, currJobPostings);
+            Array.prototype.push.apply(allJobPostings, currJobPostings);
             i++;
         } while (currJobPostings.length === limit && i < 5); // only list top 100 posting
 
-        return allJobPosting;
+        return allJobPostings;
     }
 
-    jobPostingFilter(jobPostings: JobPosting[]) {
+    private jobPostingFilter(jobPostings: MyWorkDayJobsPosting[]) {
         const jobKeywords = ['software', 'full stack']; // TODO: should be configurable
-        const jobKeywordsExclude = ['co-op']; // TODO: should be configurable
+        const jobKeywordsExclude = ['co-p']; // TODO: should be configurable
         return jobPostings.filter(
             (jobPosting) =>
                 jobKeywords.some(
@@ -102,5 +92,22 @@ export class Loblaw {
                         jobPosting.title.toLowerCase().indexOf(keyword) >= 0,
                 ),
         );
+    }
+
+    async saveJobPostings() {
+        const jobSearchParams = await this.readJobSearchParams();
+        for (const jobSearchParam of jobSearchParams) {
+            const { companyName } = jobSearchParam;
+            const allJobPostings =
+                await this.fetchAllJobPostings(jobSearchParam);
+            const filterJobPostings = this.jobPostingFilter(allJobPostings);
+
+            for (const jobPosting of filterJobPostings) {
+                const newJobPosting = new this.jobPostingModel(jobPosting);
+                await newJobPosting.save();
+            }
+
+            console.log(`finish ${companyName}'s posting`);
+        }
     }
 }
