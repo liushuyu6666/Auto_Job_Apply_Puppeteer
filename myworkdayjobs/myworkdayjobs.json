@@ -25,5 +25,14 @@
             "locations": ["1038e944b1101012453ab2868c050000", "1038e944b1101012453be0e6b2e40000"]
         },
         "originUrl": "https://salesforce.wd12.myworkdayjobs.com/en-US/Slack/"
+    },
+    {
+        "companyName": "walmart",
+        "apiUrl": "https://walmart.wd5.myworkdayjobs.com/wday/cxs/walmart/WalmartExternal/jobs",
+        "appliedFacets": {
+            "timeType": ["b181d8271e36017533d4ca68eee44f00"],
+            "locationRegionStateProvince": ["218a720b28a74c67b5c6d42c00bdadfa"]
+        },
+        "originUrl": "https://walmart.wd5.myworkdayjobs.com/en-US/WalmartExternal"
     }
 ]
