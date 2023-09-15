@@ -1,46 +1,38 @@
-[
-    {
-        "companyName": "loblaw",
-        "apiUrl": "https://myview.wd3.myworkdayjobs.com/wday/cxs/myview/loblaw_careers/jobs",
-        "appliedFacets": {
-            "locationRegionStateProvince": ["218a720b28a74c67b5c6d42c00bdadfa"],
-            "timeType": ["f9ccda084af243cebebf4538f57811ab"]
+{
+    "companies": [
+        {
+            "companyName": "loblaw",
+            "apiUrl": "https://myview.wd3.myworkdayjobs.com/wday/cxs/myview/loblaw_careers/jobs",
+            "originUrl": "https://myview.wd3.myworkdayjobs.com/en-US/loblaw_careers/"
         },
-        "originUrl": "https://myview.wd3.myworkdayjobs.com/en-US/loblaw_careers/"
-    },
-    {
-        "companyName": "salesforce",
-        "apiUrl": "https://salesforce.wd12.myworkdayjobs.com/wday/cxs/salesforce/External_Career_Site/jobs",
-        "appliedFacets": {
-            "locations": ["1038e944b1101012453ab2868c050000", "1038e944b1101012453be0e6b2e40000"],
-            "timeType": ["0e28126347c3100fe3b402cf26290000"]
+        {
+            "companyName": "walmart",
+            "apiUrl": "https://walmart.wd5.myworkdayjobs.com/wday/cxs/walmart/WalmartExternal/jobs",
+            "originUrl": "https://walmart.wd5.myworkdayjobs.com/en-US/WalmartExternal/"
+        }
+    ],
+    "mainGroupPriorities": [
+        {
+            "mainGroupText": "timeType",
+            "priorities": [
+                {
+                    "priorityOrder": 1,
+                    "priorityText": "full time"
+                }
+            ]
         },
-        "originUrl": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/"
-    },
-    {
-        "companyName": "slack",
-        "apiUrl": "https://salesforce.wd12.myworkdayjobs.com/wday/cxs/salesforce/Slack/jobs",
-        "appliedFacets": {
-            "timeType": ["0e28126347c3100fe3b402cf26290000"],
-            "locations": ["1038e944b1101012453ab2868c050000", "1038e944b1101012453be0e6b2e40000"]
-        },
-        "originUrl": "https://salesforce.wd12.myworkdayjobs.com/en-US/Slack/"
-    },
-    {
-        "companyName": "walmart",
-        "apiUrl": "https://walmart.wd5.myworkdayjobs.com/wday/cxs/walmart/WalmartExternal/jobs",
-        "appliedFacets": {
-            "timeType": ["b181d8271e36017533d4ca68eee44f00"],
-            "locationRegionStateProvince": ["218a720b28a74c67b5c6d42c00bdadfa"]
-        },
-        "originUrl": "https://walmart.wd5.myworkdayjobs.com/en-US/WalmartExternal"
-    },
-    {
-        "companyName": "equifax",
-        "apiUrl": "https://equifax.wd5.myworkdayjobs.com/wday/cxs/equifax/External/jobs",
-        "appliedFacets": {
-            "locationRegionStateProvince": ["218a720b28a74c67b5c6d42c00bdadfa"]
-        },
-        "originUrl": "https://equifax.wd5.myworkdayjobs.com/en-US/External"
-    }
-]
+        {
+            "mainGroupText": "locationMainGroup",
+            "priorities": [
+                {
+                    "priorityOrder": 1,
+                    "priorityText": "Ontario"
+                },
+                {
+                    "priorityOrder": 2,
+                    "priorityText": "Canada"
+                }
+            ]
+        }
+    ]
+}

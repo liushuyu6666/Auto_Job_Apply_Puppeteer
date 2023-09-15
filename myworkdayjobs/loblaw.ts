@@ -1,7 +1,9 @@
 import mongoose, { Model, Schema } from 'mongoose';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as lodash from 'lodash';
 import extraDate from '../utils/extraDate';
+import { Facet, IFacet, IPriority } from './Facet';
 
 export interface MyWorkDayJobsPosting {
     title: string;
@@ -21,11 +23,26 @@ export interface JobPostings {
     postedOn: Date;
 }
 
-export interface JobSearchParams {
+export interface Company {
     companyName: string;
     apiUrl: string;
-    appliedFacets: any;
     originUrl: string;
+}
+
+export interface MainGroupPriority {
+    mainGroupText: string;
+    priorities: IPriority[];
+}
+
+export interface JobSearchParams {
+    companies: Company[];
+    mainGroupPriorities: MainGroupPriority[];
+}
+
+export type AppliedFacetsValues = Map<string, string[]>;
+
+export interface AppliedFacets {
+    appliedFacets: AppliedFacetsValues;
 }
 
 export class Loblaw {
@@ -50,13 +67,65 @@ export class Loblaw {
         this.filePath = filePath;
     }
 
-    private async readJobSearchParams(): Promise<JobSearchParams[]> {
+    async fetchInitialFacets(company: string, apiUrl: string): Promise<Facet> {
+        const payload = {
+            appliedFacets: {},
+            limit: 1,
+            offset: 0,
+        };
+        const requestOptions: RequestInit = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        };
+        const response = await (await fetch(apiUrl, requestOptions)).json();
+
+        const facets: IFacet[] = response['facets'];
+        return new Facet(facets, company);
+    }
+
+    async getAppliedFacets(
+        companyName: string,
+        apiUrl: string,
+        mainGroupPriorities: MainGroupPriority[],
+    ): Promise<AppliedFacets> {
+        const facet = await this.fetchInitialFacets(companyName, apiUrl);
+        const appliedFacetsValues: AppliedFacetsValues = new Map<
+            string,
+            string[]
+        >();
+
+        for (const MainGroupPriority of mainGroupPriorities) {
+            const { mainGroupText, priorities } = MainGroupPriority;
+            const facetCards = facet.getPrioritizedFacetCards(
+                mainGroupText,
+                priorities,
+            );
+
+            const firstFacetCards =
+                facet.getTheFirstPriorityFacetCards(facetCards);
+            const grouped = lodash.groupBy(firstFacetCards, 'facetParameter');
+
+            for (const [facetParameter, cards] of Object.entries(grouped)) {
+                const ids = cards.map((card) => card.facetValue.id);
+                appliedFacetsValues.set(facetParameter, ids);
+            }
+        }
+
+        return {
+            appliedFacets: appliedFacetsValues,
+        };
+    }
+
+    private async readJobSearchParams(): Promise<JobSearchParams> {
         return JSON.parse(fs.readFileSync(this.filePath, 'utf-8'));
     }
 
     private async extractAllJobPostings(
         apiUrl: string,
-        appliedFacets: any,
+        appliedFacets: AppliedFacets,
     ): Promise<MyWorkDayJobsPosting[]> {
         const allJobPostings: MyWorkDayJobsPosting[] = [];
         let currJobPostings: MyWorkDayJobsPosting[] = [];
@@ -66,11 +135,12 @@ export class Loblaw {
         // TODO: TOO SLOW
         do {
             const payload = {
-                appliedFacets,
+                ...appliedFacets,
                 limit,
                 offset: i * limit,
                 searchText: 'software engineer',
             };
+            console.log(payload);
             const requestOptions: RequestInit = {
                 method: 'POST',
                 headers: {
@@ -94,7 +164,7 @@ export class Loblaw {
     ): JobPostings[] {
         // 1, Filter
         const jobKeywords = ['software', 'full stack']; // TODO: should be configurable
-        const jobKeywordsExclude = ['co-p']; // TODO: should be configurable
+        const jobKeywordsExclude = ['co-0p']; // TODO: should be configurable
         const filteredJobPostings = jobPostings.filter(
             (jobPosting) =>
                 jobKeywords.some(
@@ -125,11 +195,20 @@ export class Loblaw {
         }
     }
 
+    /**
+     * The entrance function.
+     */
     async ETLJobPostings() {
-        const jobSearchParams = await this.readJobSearchParams();
-        for (const jobSearchParam of jobSearchParams) {
-            const { companyName, originUrl, apiUrl, appliedFacets } =
-                jobSearchParam;
+        const { companies, mainGroupPriorities } =
+            await this.readJobSearchParams();
+        for (const company of companies) {
+            const { companyName, originUrl, apiUrl } = company;
+            const appliedFacets = await this.getAppliedFacets(
+                companyName,
+                apiUrl,
+                mainGroupPriorities,
+            );
+            console.log(appliedFacets);
             const allJobPostings = await this.extractAllJobPostings(
                 apiUrl,
                 appliedFacets,
