@@ -1,9 +1,4 @@
-import {
-    Facet,
-    IFacet,
-    IFacetCard,
-    IPriority,
-} from '../../myworkdayjobs/Facet';
+import { Facet, IFacet, IPriority } from '../../myworkdayjobs/Facet';
 
 const mockFacets: IFacet[] = [
     {
@@ -35,7 +30,7 @@ const mockFacets: IFacet[] = [
                                 facetParameter: 'locationCountryCanada',
                                 values: [
                                     {
-                                        descriptor: 'Canada1',
+                                        descriptor: 'Canada - Hybrid',
                                         id: 'a30a87ed25634629aa6c3958aa2b91ea',
                                         count: 4108,
                                     },
@@ -60,7 +55,7 @@ const mockFacets: IFacet[] = [
                                 facetParameter: 'locationCountryCanada2',
                                 values: [
                                     {
-                                        descriptor: 'Canada2',
+                                        descriptor: 'Canada - Remote',
                                         id: 'a30a87ed25634629aa6c3958aa2b91eb',
                                         count: 4108,
                                     },
@@ -90,9 +85,9 @@ const mockFacets: IFacet[] = [
                         count: 49,
                     },
                     {
-                        descriptor: 'Yukon',
-                        id: 'ce083ebfbc2843ea9d34e6f6d19ff1dd',
-                        count: 8,
+                        descriptor: "(USA) OH ONTARIO 06407 SAM'S CLUB",
+                        id: 'e83ebdbd2a0a01fe14d3da8245e9d708',
+                        count: 10,
                     },
                 ],
             },
@@ -115,90 +110,6 @@ const mockFacets: IFacet[] = [
         ],
     },
 ];
-
-const mockFacetCards: IFacetCard[] = [
-    {
-        company: 'walmart',
-        mainGroupText: 'locationMainGroup',
-        facetParameter: 'primaryLocation',
-        priority: {
-            priorityOrder: 1,
-            priorityText: 'Toronto',
-        },
-        facetValue: {
-            descriptor: 'Toronto (Stockyards), ON',
-            id: 'aca8753d865c0101b1ab62fcadce0000',
-            count: 3,
-        },
-    },
-    {
-        company: 'walmart',
-        mainGroupText: 'locationMainGroup',
-        facetParameter: 'locationRegionStateProvince',
-        priority: {
-            priorityOrder: 2,
-            priorityText: 'Ontario',
-        },
-        facetValue: {
-            descriptor: 'Ontario',
-            id: '745d76f06d2b41738aecee630c5888a0',
-            count: 49,
-        },
-    },
-    {
-        company: 'walmart',
-        mainGroupText: 'locationMainGroup',
-        facetParameter: 'locationCountryCanada',
-        priority: {
-            priorityOrder: 3,
-            priorityText: 'Canada',
-        },
-        facetValue: {
-            descriptor: 'Canada1',
-            id: 'a30a87ed25634629aa6c3958aa2b91ea',
-            count: 4108,
-        },
-    },
-    {
-        company: 'walmart',
-        mainGroupText: 'locationMainGroup',
-        facetParameter: 'locationCountryCanada2',
-        priority: {
-            priorityOrder: 3,
-            priorityText: 'Canada',
-        },
-        facetValue: {
-            descriptor: 'Canada2',
-            id: 'a30a87ed25634629aa6c3958aa2b91eb',
-            count: 4108,
-        },
-    },
-];
-
-const mockFirstFacetCards: IFacetCard[] = [
-    {
-        company: 'walmart',
-        mainGroupText: 'locationMainGroup',
-        facetParameter: 'primaryLocation',
-        priority: {
-            priorityOrder: 1,
-            priorityText: 'Toronto',
-        },
-        facetValue: {
-            descriptor: 'Toronto (Stockyards), ON',
-            id: 'aca8753d865c0101b1ab62fcadce0000',
-            count: 3,
-        },
-    },
-];
-
-const mockLocationsPriority: Map<string, number> = new Map();
-mockLocationsPriority.set('Toronto', 1);
-mockLocationsPriority.set('Ontario', 2);
-mockLocationsPriority.set('Canada', 3);
-
-const mockTimeTypePriority: Map<string, number> = new Map();
-mockTimeTypePriority.set('Full time', 1);
 
 describe('Facet', () => {
     let facet: Facet;
@@ -228,7 +139,36 @@ describe('Facet', () => {
         );
         const firstCards = facet.getTheFirstPriorityFacetCards(facetCards);
 
-        expect(facetCards).toEqual(mockFacetCards);
-        expect(firstCards).toEqual(mockFirstFacetCards);
+        expect(facetCards).toMatchSnapshot();
+        expect(firstCards).toMatchSnapshot();
+    });
+
+    test('getPrioritizedFacetCards retrieves the correct FacetCards and excludes USA cards', () => {
+        const priorities: IPriority[] = [
+            {
+                priorityOrder: 1,
+                priorityText: 'Toronto',
+            },
+            {
+                priorityOrder: 2,
+                priorityText: 'Ontario',
+            },
+            {
+                priorityOrder: 3,
+                priorityText: 'Canada',
+            },
+            {
+                priorityOrder: -1,
+                priorityText: 'USA',
+            },
+        ];
+        const facetCards = facet.getPrioritizedFacetCards(
+            'locationMainGroup',
+            priorities,
+        );
+        const firstCards = facet.getTheFirstPriorityFacetCards(facetCards);
+
+        expect(facetCards).toMatchSnapshot();
+        expect(firstCards).toMatchSnapshot();
     });
 });

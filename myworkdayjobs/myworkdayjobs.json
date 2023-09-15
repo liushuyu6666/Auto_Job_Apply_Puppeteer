@@ -31,6 +31,14 @@
                 {
                     "priorityOrder": 2,
                     "priorityText": "Canada"
+                },
+                {
+                    "priorityOrder": -1,
+                    "priorityText": "USA"
+                },
+                {
+                    "priorityOrder": -1,
+                    "priorityText": "United States"
                 }
             ]
         }

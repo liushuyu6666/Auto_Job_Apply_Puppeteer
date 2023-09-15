@@ -1,0 +1,175 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Facet getPrioritizedFacetCards retrieves the correct FacetCards and excludes USA cards 1`] = `
+[
+  {
+    "company": "walmart",
+    "facetParameter": "primaryLocation",
+    "facetValue": {
+      "count": 3,
+      "descriptor": "Toronto (Stockyards), ON",
+      "id": "aca8753d865c0101b1ab62fcadce0000",
+    },
+    "mainGroupText": "locationMainGroup",
+    "priority": {
+      "priorityOrder": 1,
+      "priorityText": "Toronto",
+    },
+  },
+  {
+    "company": "walmart",
+    "facetParameter": "locationRegionStateProvince",
+    "facetValue": {
+      "count": 49,
+      "descriptor": "Ontario",
+      "id": "745d76f06d2b41738aecee630c5888a0",
+    },
+    "mainGroupText": "locationMainGroup",
+    "priority": {
+      "priorityOrder": 2,
+      "priorityText": "Ontario",
+    },
+  },
+  {
+    "company": "walmart",
+    "facetParameter": "locationCountryCanada",
+    "facetValue": {
+      "count": 4108,
+      "descriptor": "Canada - Hybrid",
+      "id": "a30a87ed25634629aa6c3958aa2b91ea",
+    },
+    "mainGroupText": "locationMainGroup",
+    "priority": {
+      "priorityOrder": 3,
+      "priorityText": "Canada",
+    },
+  },
+  {
+    "company": "walmart",
+    "facetParameter": "locationCountryCanada2",
+    "facetValue": {
+      "count": 4108,
+      "descriptor": "Canada - Remote",
+      "id": "a30a87ed25634629aa6c3958aa2b91eb",
+    },
+    "mainGroupText": "locationMainGroup",
+    "priority": {
+      "priorityOrder": 3,
+      "priorityText": "Canada",
+    },
+  },
+]
+`;
+
+exports[`Facet getPrioritizedFacetCards retrieves the correct FacetCards and excludes USA cards 2`] = `
+[
+  {
+    "company": "walmart",
+    "facetParameter": "primaryLocation",
+    "facetValue": {
+      "count": 3,
+      "descriptor": "Toronto (Stockyards), ON",
+      "id": "aca8753d865c0101b1ab62fcadce0000",
+    },
+    "mainGroupText": "locationMainGroup",
+    "priority": {
+      "priorityOrder": 1,
+      "priorityText": "Toronto",
+    },
+  },
+]
+`;
+
+exports[`Facet getPrioritizedFacetCards retrieves the correct FacetCards, and getTheFirstPriorityFacetCards extract the first priority cards 1`] = `
+[
+  {
+    "company": "walmart",
+    "facetParameter": "primaryLocation",
+    "facetValue": {
+      "count": 3,
+      "descriptor": "Toronto (Stockyards), ON",
+      "id": "aca8753d865c0101b1ab62fcadce0000",
+    },
+    "mainGroupText": "locationMainGroup",
+    "priority": {
+      "priorityOrder": 1,
+      "priorityText": "Toronto",
+    },
+  },
+  {
+    "company": "walmart",
+    "facetParameter": "locationRegionStateProvince",
+    "facetValue": {
+      "count": 49,
+      "descriptor": "Ontario",
+      "id": "745d76f06d2b41738aecee630c5888a0",
+    },
+    "mainGroupText": "locationMainGroup",
+    "priority": {
+      "priorityOrder": 2,
+      "priorityText": "Ontario",
+    },
+  },
+  {
+    "company": "walmart",
+    "facetParameter": "locationRegionStateProvince",
+    "facetValue": {
+      "count": 10,
+      "descriptor": "(USA) OH ONTARIO 06407 SAM'S CLUB",
+      "id": "e83ebdbd2a0a01fe14d3da8245e9d708",
+    },
+    "mainGroupText": "locationMainGroup",
+    "priority": {
+      "priorityOrder": 2,
+      "priorityText": "Ontario",
+    },
+  },
+  {
+    "company": "walmart",
+    "facetParameter": "locationCountryCanada",
+    "facetValue": {
+      "count": 4108,
+      "descriptor": "Canada - Hybrid",
+      "id": "a30a87ed25634629aa6c3958aa2b91ea",
+    },
+    "mainGroupText": "locationMainGroup",
+    "priority": {
+      "priorityOrder": 3,
+      "priorityText": "Canada",
+    },
+  },
+  {
+    "company": "walmart",
+    "facetParameter": "locationCountryCanada2",
+    "facetValue": {
+      "count": 4108,
+      "descriptor": "Canada - Remote",
+      "id": "a30a87ed25634629aa6c3958aa2b91eb",
+    },
+    "mainGroupText": "locationMainGroup",
+    "priority": {
+      "priorityOrder": 3,
+      "priorityText": "Canada",
+    },
+  },
+]
+`;
+
+exports[`Facet getPrioritizedFacetCards retrieves the correct FacetCards, and getTheFirstPriorityFacetCards extract the first priority cards 2`] = `
+[
+  {
+    "company": "walmart",
+    "facetParameter": "primaryLocation",
+    "facetValue": {
+      "count": 3,
+      "descriptor": "Toronto (Stockyards), ON",
+      "id": "aca8753d865c0101b1ab62fcadce0000",
+    },
+    "mainGroupText": "locationMainGroup",
+    "priority": {
+      "priorityOrder": 1,
+      "priorityText": "Toronto",
+    },
+  },
+]
+`;

@@ -73,13 +73,24 @@ export class Facet {
         facetValue: IFacetValue,
         facetCards: IFacetCard[],
     ) {
+        const excludes = priorities
+            .filter((priority) => priority.priorityOrder < 0)
+            .map((priority) => priority.priorityText);
+
         const { descriptor } = facetValue;
+
+        // If descriptor contains the word that need to be excluded
+        if (
+            excludes.some((exclude) =>
+                descriptor.toLowerCase().includes(exclude.toLowerCase()),
+            )
+        ) {
+            return;
+        }
+
         priorities.forEach((priority) => {
             const { priorityText } = priority;
-            if (
-                descriptor.toLowerCase().indexOf(priorityText.toLowerCase()) !==
-                -1
-            ) {
+            if (descriptor.toLowerCase().includes(priorityText.toLowerCase())) {
                 facetCards.push({
                     company: this.company,
                     mainGroupText,
