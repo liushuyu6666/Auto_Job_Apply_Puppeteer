@@ -2,7 +2,7 @@ import mongoose, { Model, Schema } from 'mongoose';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as lodash from 'lodash';
-import extraDate from '../utils/extraDate';
+import extractDate from '../utils/extractDate';
 import { Facet, IFacet, IPriority } from './Facet';
 
 export interface MyWorkDayJobsPosting {
@@ -86,7 +86,7 @@ export class Loblaw {
         return new Facet(facets, company);
     }
 
-    async getAppliedFacets(
+    async getAppliedFacetsAuto(
         companyName: string,
         apiUrl: string,
         mainGroupPriorities: MainGroupPriority[],
@@ -140,7 +140,6 @@ export class Loblaw {
                 offset: i * limit,
                 searchText: 'software engineer',
             };
-            console.log(payload);
             const requestOptions: RequestInit = {
                 method: 'POST',
                 headers: {
@@ -178,14 +177,21 @@ export class Loblaw {
         );
 
         // 2, Transfer
-        return (filteredJobPostings || []).map((jobPosting) => ({
-            company,
-            title: jobPosting.title,
-            referredId: jobPosting.bulletFields[0],
-            portalUrl: path.join(originUrl, jobPosting.externalPath),
-            locationsText: jobPosting.locationsText,
-            postedOn: extraDate(jobPosting.postedOn),
-        }));
+        const transferredJobPostings: JobPostings[] = [];
+        for (const jobPosting of filteredJobPostings) {
+            const postedDate = extractDate(jobPosting.postedOn);
+            if (postedDate) {
+                transferredJobPostings.push({
+                    company,
+                    title: jobPosting.title,
+                    referredId: jobPosting.bulletFields[0],
+                    portalUrl: path.join(originUrl, jobPosting.externalPath),
+                    locationsText: jobPosting.locationsText,
+                    postedOn: postedDate,
+                });
+            }
+        }
+        return transferredJobPostings;
     }
 
     async loadJobPostings(jobPostings: JobPostings[]): Promise<void> {
@@ -203,12 +209,11 @@ export class Loblaw {
             await this.readJobSearchParams();
         for (const company of companies) {
             const { companyName, originUrl, apiUrl } = company;
-            const appliedFacets = await this.getAppliedFacets(
+            const appliedFacets = await this.getAppliedFacetsAuto(
                 companyName,
                 apiUrl,
                 mainGroupPriorities,
             );
-            console.log(appliedFacets);
             const allJobPostings = await this.extractAllJobPostings(
                 apiUrl,
                 appliedFacets,
