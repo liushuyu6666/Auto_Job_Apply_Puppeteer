@@ -135,11 +135,12 @@ export class Loblaw {
         // TODO: TOO SLOW
         do {
             const payload = {
-                ...appliedFacets,
+                appliedFacets: Object.fromEntries(appliedFacets.appliedFacets),
                 limit,
                 offset: i * limit,
                 searchText: 'software engineer',
             };
+            console.log(payload);
             const requestOptions: RequestInit = {
                 method: 'POST',
                 headers: {
@@ -149,6 +150,7 @@ export class Loblaw {
             };
             const response = await (await fetch(apiUrl, requestOptions)).json();
             currJobPostings = response['jobPostings'];
+            console.log(currJobPostings.length);
             Array.prototype.push.apply(allJobPostings, currJobPostings);
             i++;
         } while (currJobPostings.length === limit && i < 5); // only list top 100 posting
@@ -163,7 +165,7 @@ export class Loblaw {
     ): JobPostings[] {
         // 1, Filter
         const jobKeywords = ['software', 'full stack']; // TODO: should be configurable
-        const jobKeywordsExclude = ['co-0p']; // TODO: should be configurable
+        const jobKeywordsExclude = ['co-op']; // TODO: should be configurable
         const filteredJobPostings = jobPostings.filter(
             (jobPosting) =>
                 jobKeywords.some(
@@ -214,6 +216,7 @@ export class Loblaw {
                 apiUrl,
                 mainGroupPriorities,
             );
+
             const allJobPostings = await this.extractAllJobPostings(
                 apiUrl,
                 appliedFacets,

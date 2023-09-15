@@ -39,6 +39,18 @@
                 {
                     "priorityOrder": -1,
                     "priorityText": "United States"
+                },
+                {
+                    "priorityOrder": -1,
+                    "priorityText": "Ontario, OH"
+                },
+                {
+                    "priorityOrder": -1,
+                    "priorityText": "Ontario, OR"
+                },
+                {
+                    "priorityOrder": -1,
+                    "priorityText": "Ontario, CA"
                 }
             ]
         }
