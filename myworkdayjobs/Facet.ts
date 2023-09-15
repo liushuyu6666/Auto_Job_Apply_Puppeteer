@@ -1,3 +1,5 @@
+import * as lodash from 'lodash';
+
 export interface IFacetValue {
     descriptor: string;
     id: string;
@@ -10,29 +12,26 @@ export interface IFacet {
     values: IFacetValue[] | IFacet[];
 }
 
-export interface IFacetBrief {
-    id: string;
-    count: number;
-    descriptor: string;
+export interface IPriority {
+    priorityOrder: number;
+    priorityText: string;
+}
+
+export interface IFacetCard {
+    company: string;
+    mainGroupText: string;
     facetParameter: string;
+    priority: IPriority;
+    facetValue: IFacetValue;
 }
-
-export interface IFacetDetail {
-    priority: number;
-    values: IFacetBrief[];
-}
-
-export type FacetSelector = Map<string, IFacetBrief[]>;
-
-export type FacetSelectorDetail = Map<string, IFacetDetail>;
-
-export type FacetParameterDetail = Map<string, FacetSelectorDetail>;
 
 export class Facet {
     readonly facets: IFacet[];
+    readonly company: string;
 
-    constructor(facets: IFacet[]) {
+    constructor(facets: IFacet[], company: string) {
         this.facets = facets;
+        this.company = company;
     }
 
     private isFacetValue(value: IFacetValue | IFacet): value is IFacetValue {
@@ -40,67 +39,92 @@ export class Facet {
     }
 
     private dfsValues(
-        values: IFacetValue[] | IFacet[],
+        mainGroupText: string,
         facetParameter: string,
-        facetSelector: Map<string, IFacetBrief[]>,
+        priorities: IPriority[],
+        facetValues: IFacetValue[] | IFacet[],
+        facetCards: IFacetCard[],
     ) {
-        for (const value of values) {
-            if (this.isFacetValue(value)) {
-                this.updateFacetSelector(value, facetParameter, facetSelector);
+        for (const facetValue of facetValues) {
+            if (this.isFacetValue(facetValue)) {
+                this.updateFacetCards(
+                    mainGroupText,
+                    facetParameter,
+                    priorities,
+                    facetValue,
+                    facetCards,
+                );
             } else {
                 this.dfsValues(
-                    value.values,
-                    value.facetParameter,
-                    facetSelector,
+                    mainGroupText,
+                    facetValue.facetParameter,
+                    priorities,
+                    facetValue.values,
+                    facetCards,
                 );
             }
         }
     }
 
-    private updateFacetSelector(
-        value: IFacetValue,
+    private updateFacetCards(
+        mainGroupText: string,
         facetParameter: string,
-        facetSelector: Map<string, IFacetBrief[]>,
+        priorities: IPriority[],
+        facetValue: IFacetValue,
+        facetCards: IFacetCard[],
     ) {
-        const facetDescriptor = value.descriptor;
-        Array.from(facetSelector.keys()).forEach((loc) => {
-            if (facetDescriptor.toLowerCase().indexOf(loc.toLowerCase()) >= 0) {
-                facetSelector.get(loc).push({
-                    ...value,
+        const { descriptor } = facetValue;
+        priorities.forEach((priority) => {
+            const { priorityText } = priority;
+            if (
+                descriptor.toLowerCase().indexOf(priorityText.toLowerCase()) !==
+                -1
+            ) {
+                facetCards.push({
+                    company: this.company,
+                    mainGroupText,
                     facetParameter,
+                    priority,
+                    facetValue,
                 });
             }
         });
     }
 
-    getFacetParameterDetail(
+    getPrioritizedFacetCards(
         mainGroupText: string,
-        facetPriority: Map<string, number>,
-    ): FacetParameterDetail {
-        const facetSelector = new Map<string, IFacetBrief[]>();
-        Array.from(facetPriority.keys()).forEach((facet) =>
-            facetSelector.set(facet, []),
-        );
+        priorities: IPriority[],
+    ): IFacetCard[] {
+        const facetCards: IFacetCard[] = [];
 
         const mainGroup = this.facets.find(
             (facet) => facet.facetParameter === mainGroupText,
         );
 
-        const values = mainGroup.values;
-        this.dfsValues(values, mainGroupText, facetSelector);
+        const facetParameter = mainGroup.facetParameter;
+        const facetValues = mainGroup.values;
+        this.dfsValues(
+            mainGroupText,
+            facetParameter,
+            priorities,
+            facetValues,
+            facetCards,
+        );
 
-        const facetParameterDetail: FacetParameterDetail = new Map();
-        const facetSelectorDetail: FacetSelectorDetail = new Map();
-        for (const [facet, brief] of facetSelector) {
-            const priority = facetPriority.get(facet);
-            const facetDetail: IFacetDetail = {
-                priority,
-                values: brief,
-            };
-            facetSelectorDetail.set(facet, facetDetail);
-        }
+        return lodash.sortBy(facetCards, ['priority.priorityOrder']);
+    }
 
-        facetParameterDetail.set(mainGroupText, facetSelectorDetail);
-        return facetParameterDetail;
+    getTheFirstPriorityFacetCards(facetCards: IFacetCard[]): IFacetCard[] {
+        const minPriorityOrder = facetCards.reduce(
+            (prevPriorityOrder, curr) => {
+                return prevPriorityOrder > curr.priority.priorityOrder
+                    ? curr.priority.priorityOrder
+                    : prevPriorityOrder;
+            },
+            Number.MAX_VALUE,
+        );
+        return facetCards.filter(
+            (card) => card.priority.priorityOrder === minPriorityOrder,
+        );
     }
 }

@@ -1,8 +1,8 @@
 import {
     Facet,
-    FacetParameterDetail,
-    FacetSelectorDetail,
     IFacet,
+    IFacetCard,
+    IPriority,
 } from '../../myworkdayjobs/Facet';
 
 const mockFacets: IFacet[] = [
@@ -116,6 +116,82 @@ const mockFacets: IFacet[] = [
     },
 ];
 
+const mockFacetCards: IFacetCard[] = [
+    {
+        company: 'walmart',
+        mainGroupText: 'locationMainGroup',
+        facetParameter: 'primaryLocation',
+        priority: {
+            priorityOrder: 1,
+            priorityText: 'Toronto',
+        },
+        facetValue: {
+            descriptor: 'Toronto (Stockyards), ON',
+            id: 'aca8753d865c0101b1ab62fcadce0000',
+            count: 3,
+        },
+    },
+    {
+        company: 'walmart',
+        mainGroupText: 'locationMainGroup',
+        facetParameter: 'locationRegionStateProvince',
+        priority: {
+            priorityOrder: 2,
+            priorityText: 'Ontario',
+        },
+        facetValue: {
+            descriptor: 'Ontario',
+            id: '745d76f06d2b41738aecee630c5888a0',
+            count: 49,
+        },
+    },
+    {
+        company: 'walmart',
+        mainGroupText: 'locationMainGroup',
+        facetParameter: 'locationCountryCanada',
+        priority: {
+            priorityOrder: 3,
+            priorityText: 'Canada',
+        },
+        facetValue: {
+            descriptor: 'Canada1',
+            id: 'a30a87ed25634629aa6c3958aa2b91ea',
+            count: 4108,
+        },
+    },
+    {
+        company: 'walmart',
+        mainGroupText: 'locationMainGroup',
+        facetParameter: 'locationCountryCanada2',
+        priority: {
+            priorityOrder: 3,
+            priorityText: 'Canada',
+        },
+        facetValue: {
+            descriptor: 'Canada2',
+            id: 'a30a87ed25634629aa6c3958aa2b91eb',
+            count: 4108,
+        },
+    },
+];
+
+const mockFirstFacetCards: IFacetCard[] = [
+    {
+        company: 'walmart',
+        mainGroupText: 'locationMainGroup',
+        facetParameter: 'primaryLocation',
+        priority: {
+            priorityOrder: 1,
+            priorityText: 'Toronto',
+        },
+        facetValue: {
+            descriptor: 'Toronto (Stockyards), ON',
+            id: 'aca8753d865c0101b1ab62fcadce0000',
+            count: 3,
+        },
+    },
+];
+
 const mockLocationsPriority: Map<string, number> = new Map();
 mockLocationsPriority.set('Toronto', 1);
 mockLocationsPriority.set('Ontario', 2);
@@ -128,61 +204,31 @@ describe('Facet', () => {
     let facet: Facet;
 
     beforeEach(() => {
-        facet = new Facet(mockFacets);
+        facet = new Facet(mockFacets, 'walmart');
     });
 
-    test('getFacetBrief retrieves the correct locationMainGroup', () => {
-        const expectedFacetSelectorDetail: FacetSelectorDetail = new Map();
-        expectedFacetSelectorDetail.set('Toronto', {
-            priority: 1,
-            values: [
-                {
-                    facetParameter: 'primaryLocation',
-                    descriptor: 'Toronto (Stockyards), ON',
-                    id: 'aca8753d865c0101b1ab62fcadce0000',
-                    count: 3,
-                },
-            ],
-        });
-        expectedFacetSelectorDetail.set('Ontario', {
-            priority: 2,
-            values: [
-                {
-                    facetParameter: 'locationRegionStateProvince',
-                    descriptor: 'Ontario',
-                    id: '745d76f06d2b41738aecee630c5888a0',
-                    count: 49,
-                },
-            ],
-        });
-        expectedFacetSelectorDetail.set('Canada', {
-            priority: 3,
-            values: [
-                {
-                    facetParameter: 'locationCountryCanada',
-                    descriptor: 'Canada1',
-                    id: 'a30a87ed25634629aa6c3958aa2b91ea',
-                    count: 4108,
-                },
-                {
-                    facetParameter: 'locationCountryCanada2',
-                    descriptor: 'Canada2',
-                    id: 'a30a87ed25634629aa6c3958aa2b91eb',
-                    count: 4108,
-                },
-            ],
-        });
-        const expectedFacetParameterDetail: FacetParameterDetail = new Map();
-        expectedFacetParameterDetail.set(
+    test('getPrioritizedFacetCards retrieves the correct FacetCards, and getTheFirstPriorityFacetCards extract the first priority cards', () => {
+        const priorities: IPriority[] = [
+            {
+                priorityOrder: 1,
+                priorityText: 'Toronto',
+            },
+            {
+                priorityOrder: 2,
+                priorityText: 'Ontario',
+            },
+            {
+                priorityOrder: 3,
+                priorityText: 'Canada',
+            },
+        ];
+        const facetCards = facet.getPrioritizedFacetCards(
             'locationMainGroup',
-            expectedFacetSelectorDetail,
+            priorities,
         );
+        const firstCards = facet.getTheFirstPriorityFacetCards(facetCards);
 
-        const facetParameterDetail = facet.getFacetParameterDetail(
-            'locationMainGroup',
-            mockLocationsPriority,
-        );
-
-        expect(facetParameterDetail).toEqual(expectedFacetParameterDetail);
+        expect(facetCards).toEqual(mockFacetCards);
+        expect(firstCards).toEqual(mockFirstFacetCards);
     });
 });
