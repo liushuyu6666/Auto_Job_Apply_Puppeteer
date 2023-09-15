@@ -48,3 +48,18 @@ After selecting the "Location" button, a dropdown menu appears with various loca
    2. `limit`: Specifies the number of job postings displayed on a single page, with a maximum of 20.
    3. `offset`: Indicates the starting point for the list of job postings.
    4. `searchText`: Describes the position you're searching for, e.g., "software engineer".
+
+
+
+# Facet Class
+The Facet Class manages the `facets` field in the `myworkdayjobs` response. It can search for or transform the data.
+## Type
+There are two main types:
+1. Response Type: This type is defined to correspond with the response from the `myworkdayjobs` APIs.
+2. Customized Type: This type is customized for further processing of the data.
+
+**Facet of the Response Type**:
+![facet of the response type](static/response_type.png)
+
+**Customized facet type for further process**
+![customized facet type](static/customized_type.png)
