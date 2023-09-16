@@ -1,11 +1,14 @@
 import { mongodbConnection } from './src/mongodb';
-import { Loblaw } from './myworkdayjobs/loblaw';
+import { MyWorkDayJobs } from './src/myworkdayjobs/MyWorkDayJobs';
 
 async function main() {
     const connection = await mongodbConnection('AutoJobs');
-    const loblaw = new Loblaw('myworkdayjobs/myworkdayjobs.json');
+    console.log(typeof MyWorkDayJobs);
+    const myWorkDayJobs = new MyWorkDayJobs(
+        'src/myworkdayjobs/myworkdayjobs.json',
+    );
     // await loblaw.ETLJobPostings();
-    await loblaw.ETLJobPostings();
+    await myWorkDayJobs.ETLJobPostings();
     await connection.close();
 }
 

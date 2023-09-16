@@ -45,7 +45,7 @@ export interface AppliedFacets {
     appliedFacets: AppliedFacetsValues;
 }
 
-export class Loblaw {
+export class MyWorkDayJobs {
     jobPostingModel: Model<JobPostings>;
     filePath: string;
 
@@ -140,7 +140,6 @@ export class Loblaw {
                 offset: i * limit,
                 searchText: 'software engineer',
             };
-            console.log(payload);
             const requestOptions: RequestInit = {
                 method: 'POST',
                 headers: {
@@ -150,7 +149,6 @@ export class Loblaw {
             };
             const response = await (await fetch(apiUrl, requestOptions)).json();
             currJobPostings = response['jobPostings'];
-            console.log(currJobPostings.length);
             Array.prototype.push.apply(allJobPostings, currJobPostings);
             i++;
         } while (currJobPostings.length === limit && i < 5); // only list top 100 posting

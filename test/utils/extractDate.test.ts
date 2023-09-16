@@ -1,4 +1,4 @@
-import extractDate from '../../utils/extractDate';
+import extractDate from '../../src/utils/extractDate';
 import { sub } from 'date-fns';
 
 describe('extractDate', () => {

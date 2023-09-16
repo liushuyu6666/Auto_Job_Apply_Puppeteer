@@ -1,4 +1,4 @@
-import { Facet, IFacet, IPriority } from '../../myworkdayjobs/Facet';
+import { Facet, IFacet, IPriority } from '../../src/myworkdayjobs/Facet';
 
 const mockFacets: IFacet[] = [
     {

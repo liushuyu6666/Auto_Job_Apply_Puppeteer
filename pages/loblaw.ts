@@ -1,6 +1,6 @@
 import { Browser, Page } from 'puppeteer';
 
-import delay from '../utils/delay';
+import delay from '../src/utils/delay';
 import { PuppeteerExtra } from 'puppeteer-extra';
 
 export interface JobTitleAndHref {
