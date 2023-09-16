@@ -9,6 +9,11 @@
             "companyName": "walmart",
             "apiUrl": "https://walmart.wd5.myworkdayjobs.com/wday/cxs/walmart/WalmartExternal/jobs",
             "originUrl": "https://walmart.wd5.myworkdayjobs.com/en-US/WalmartExternal/"
+        },
+        {
+            "companyName": "manulife",
+            "apiUrl": "https://manulife.wd3.myworkdayjobs.com/wday/cxs/manulife/MFCJH_Jobs/jobs",
+            "originUrl": "https://manulife.wd3.myworkdayjobs.com/MFCJH_Jobs"
         }
     ],
     "mainGroupPriorities": [
