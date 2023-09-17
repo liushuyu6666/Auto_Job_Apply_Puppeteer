@@ -112,6 +112,10 @@ export class Facet {
             (facet) => facet.facetParameter === mainGroupText,
         );
 
+        if (!mainGroup) {
+            return [];
+        }
+
         const facetParameter = mainGroup.facetParameter;
         const facetValues = mainGroup.values;
         this.dfsValues(
