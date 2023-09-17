@@ -14,6 +14,26 @@
             "companyName": "manulife",
             "apiUrl": "https://manulife.wd3.myworkdayjobs.com/wday/cxs/manulife/MFCJH_Jobs/jobs",
             "originUrl": "https://manulife.wd3.myworkdayjobs.com/MFCJH_Jobs"
+        },
+        {
+            "companyName": "myworkdayjobs",
+            "apiUrl": "https://workday.wd5.myworkdayjobs.com/wday/cxs/workday/Workday/jobs",
+            "originUrl": "https://workday.wd5.myworkdayjobs.com/Workday"
+        },
+        {
+            "companyName": "trendmicro",
+            "apiUrl": "https://trendmicro.wd3.myworkdayjobs.com/wday/cxs/trendmicro/External/jobs",
+            "originUrl": "https://trendmicro.wd3.myworkdayjobs.com/External"
+        },
+        {
+            "companyName": "bestbuy",
+            "apiUrl": "https://bestbuycanada.wd3.myworkdayjobs.com/wday/cxs/bestbuycanada/BestBuyCA_Career/jobs",
+            "originUrl": "https://bestbuycanada.wd3.myworkdayjobs.com/BestBuyCA_Career"
+        },
+        {
+            "companyName": "cibc",
+            "apiUrl": "https://cibc.wd3.myworkdayjobs.com/wday/cxs/cibc/search/jobs",
+            "originUrl": "https://cibc.wd3.myworkdayjobs.com/"
         }
     ],
     "mainGroupPriorities": [
@@ -27,6 +47,15 @@
             ]
         },
         {
+            "mainGroupText": "State__Region__Province",
+            "priorities": [
+                {
+                    "priorityOrder": 1,
+                    "priorityText": "Ontario"
+                }
+            ]
+        },
+        {
             "mainGroupText": "locationMainGroup",
             "priorities": [
                 {
@@ -36,6 +65,14 @@
                 {
                     "priorityOrder": 2,
                     "priorityText": "Canada"
+                },
+                {
+                    "priorityOrder": -1,
+                    "priorityText": "Vancouver"
+                },
+                {
+                    "priorityOrder": -1,
+                    "priorityText": "Victoria"
                 },
                 {
                     "priorityOrder": -1,
