@@ -1,9 +1,11 @@
-import mongoose, { Model, Schema } from 'mongoose';
+import { Model } from 'mongoose';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as lodash from 'lodash';
 import extractDate from '../utils/extractDate';
 import { Facet, IFacet, IPriority } from './Facet';
+import { JobPosting } from '../models/JobPosting';
+import { IJobPostingCount, JobPostingCountModel } from '../models/JobPostingCount';
 
 export interface MyWorkDayJobsPosting {
     title: string;
@@ -11,16 +13,6 @@ export interface MyWorkDayJobsPosting {
     locationsText: string;
     postedOn: string;
     bulletFields: string[];
-}
-
-// This is the database schema
-export interface JobPostings {
-    company: string;
-    title: string;
-    referredId: string;
-    portalUrl: string;
-    locationsText: string;
-    postedOn: Date;
 }
 
 export interface Company {
@@ -46,28 +38,29 @@ export interface AppliedFacets {
 }
 
 export class MyWorkDayJobs {
-    jobPostingModel: Model<JobPostings>;
     filePath: string;
+    JobPosting: Model<JobPosting>;
+    JobPostingCount: JobPostingCountModel;
+    byPostedOn: Map<string, Date>;
+    byReferredIds: Map<string, string[]>;
 
-    constructor(filePath: string) {
-        const jobPostingSchema = new Schema<JobPostings>({
-            company: { type: String, required: true },
-            title: { type: String, required: true },
-            referredId: { type: String, required: true },
-            portalUrl: { type: String, required: true },
-            locationsText: { type: String, required: true },
-            postedOn: { type: Date, required: true },
-        });
-
-        this.jobPostingModel = mongoose.model<JobPostings>(
-            'JobPosting',
-            jobPostingSchema,
-        );
-
+    constructor(filePath: string, JobPostingModel: Model<JobPosting>, JobPostingCountModel: JobPostingCountModel) {
         this.filePath = filePath;
+        this.JobPosting = JobPostingModel;
+        this.JobPostingCount = JobPostingCountModel;
+        this.byPostedOn = new Map<string, Date>();
+        this.byReferredIds = new Map<string, string[]>();
     }
 
-    async fetchInitialFacets(company: string, apiUrl: string): Promise<Facet> {
+    private async init() {
+        const latestReferredIds = await this.JobPostingCount.getLatestReferredIds();
+        latestReferredIds.forEach((latestReferredId) => {
+            this.byPostedOn.set(latestReferredId.company, latestReferredId.postedOn);
+            this.byReferredIds.set(latestReferredId.company, latestReferredId.referredIds);
+        })
+    }
+
+    private async fetchInitialFacets(company: string, apiUrl: string): Promise<Facet> {
         const payload = {
             appliedFacets: {},
             limit: 1,
@@ -86,7 +79,7 @@ export class MyWorkDayJobs {
         return new Facet(facets, company);
     }
 
-    async getAppliedFacetsAuto(
+    private async getAppliedFacetsAuto(
         companyName: string,
         apiUrl: string,
         mainGroupPriorities: MainGroupPriority[],
@@ -156,12 +149,12 @@ export class MyWorkDayJobs {
         return allJobPostings;
     }
 
-    private transferToJobPostings(
+    private async transferToJobPostings(
         jobPostings: MyWorkDayJobsPosting[],
         company: string,
         originUrl: string,
-    ): JobPostings[] {
-        // 1, Filter
+    ): Promise<JobPosting[]> {
+        // 1, Filter by titles
         const jobKeywords = ['software', 'full stack']; // TODO: should be configurable
         const jobKeywordsExclude = ['co-op']; // TODO: should be configurable
         const filteredJobPostings = jobPostings.filter(
@@ -177,7 +170,7 @@ export class MyWorkDayJobs {
         );
 
         // 2, Transfer
-        const transferredJobPostings: JobPostings[] = [];
+        const transferredJobPostings: JobPosting[] = [];
         for (const jobPosting of filteredJobPostings) {
             const postedDate = extractDate(jobPosting.postedOn);
             if (postedDate) {
@@ -191,12 +184,25 @@ export class MyWorkDayJobs {
                 });
             }
         }
-        return transferredJobPostings;
+
+        // 3, Filter by posted date
+        const purifiedJobPostings = transferredJobPostings.filter((jobPosting) => {
+            const latestPostedOn = this.byPostedOn.get(company);
+            const latestReferredIds = this.byReferredIds.get(company);
+            if (latestPostedOn && jobPosting.postedOn.getTime() < latestPostedOn.getTime()) {
+                return false;
+            } else if (latestReferredIds && latestReferredIds.includes(jobPosting.referredId)) {
+                return false;
+            }
+            return true;
+        })
+    
+        return purifiedJobPostings;
     }
 
-    async loadJobPostings(jobPostings: JobPostings[]): Promise<void> {
+    private async loadJobPostings(jobPostings: JobPosting[]): Promise<void> {
         for (const jobPosting of jobPostings) {
-            const newJobPosting = new this.jobPostingModel(jobPosting);
+            const newJobPosting = new this.JobPosting(jobPosting);
             await newJobPosting.save();
         }
     }
@@ -205,6 +211,8 @@ export class MyWorkDayJobs {
      * The entrance function.
      */
     async ETLJobPostings() {
+        await this.init();
+
         const { companies, mainGroupPriorities } =
             await this.readJobSearchParams();
         for (const company of companies) {
@@ -219,7 +227,7 @@ export class MyWorkDayJobs {
                 apiUrl,
                 appliedFacets,
             );
-            const transferredJobPostings = this.transferToJobPostings(
+            const transferredJobPostings = await this.transferToJobPostings(
                 allJobPostings,
                 companyName,
                 originUrl,
